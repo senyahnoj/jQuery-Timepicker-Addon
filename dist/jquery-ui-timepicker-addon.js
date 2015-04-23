@@ -187,6 +187,16 @@
 
 			overrides = {
 				beforeShow: function (input, dp_inst) {
+
+					// Checks the minimum time a new datetimepicker may open after another one has closed
+					// (see the onClose() function)
+					// this is to counter a bug in IE when a datetimepicker is created inside
+					// a UI dialog modal window and keeps reopening straight after clicking on the 'Done'
+					// button
+					if (typeof tp_inst.nextOpen != 'undefined' && new Date().getTime() <= tp_inst.nextOpen) {
+						return false;
+					}
+
 					if ($.isFunction(tp_inst._defaults.evnts.beforeShow)) {
 						return tp_inst._defaults.evnts.beforeShow.call($input[0], input, dp_inst, tp_inst);
 					}
@@ -199,6 +209,11 @@
 					}
 				},
 				onClose: function (dateText, dp_inst) {
+					// Set a minimum time a new datetimepicker may open after closing this one
+					// this is to counter a bug in IE when a datetimepicker is created inside
+					// a UI dialog modal window and keeps reopening straight after clicking on the 'Done'
+					// button
+					tp_inst.nextOpen = new Date().getTime() + 500;
 					if (tp_inst.timeDefined === true && $input.val() !== '') {
 						tp_inst._updateDateTime(dp_inst);
 					}
